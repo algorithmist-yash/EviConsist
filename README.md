@@ -25,7 +25,6 @@ Task-specific trade-offs and source-overlap limitations matter. These are benchm
 - [Original figures and provenance](paper/figures/README.md)
 - [Original measured tables](paper/tables/README.md)
 - [Verified aggregate results](paper/reproducibility/VERIFIED_PAPER_RESULTS.json)
-- [Submission handoff](paper/SUBMISSION_HANDOFF.md)
 - [Public release scope and limitations](docs/PUBLIC_REPOSITORY_SCOPE.md)
 
 Compile `paper/main.tex` with an IEEEtran-enabled pdfLaTeX installation. The bibliography is inline; figure paths and table inputs are relative to `paper/`. All manuscript citations, DOI/URL links and internal equation/figure/table references are clickable. No figures/tables are copied from other papers. AI assistance is disclosed in the manuscript.
@@ -75,5 +74,7 @@ The benchmark label is positive when a response has at least one annotation with
 Aggregate data is supplied for checking tables and figures. No public raw-data release, new human annotation, combined-model improvement, publication acceptance or IEEE Xplore inclusion is claimed.
 
 ## Citation and license
+
+This public repository is intentionally limited to files supporting the completed verifier paper. Unrelated experimental pilots, transfer tools and statistical debugging workflows remain local.
 
 Use [CITATION.cff](CITATION.cff) to cite the project. Cite RAGTruth and the pretrained verifier resources separately when using them. The manuscript is an unpublished research draft; it has no assigned DOI or accepted venue. No project code license has yet been selected by the authors. Dependencies and upstream data retain their own terms.

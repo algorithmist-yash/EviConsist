@@ -1,10 +1,10 @@
 # Public repository scope
 
-This release contains authored implementation code, protocol documentation, manuscript source, original artwork and aggregate numeric results. The public repository is https://github.com/algorithmist-yash/EviConsist.
+This release contains authored implementation code, manuscript source, original artwork and aggregate numeric results. The public repository is https://github.com/algorithmist-yash/EviConsist.
 
 It excludes raw benchmark source/response text, model weights, response-level prediction archives, SQLite feature caches, transfer packages, credentials and local execution checkpoints. Those exclusions are deliberate; a public code repository does not grant permission to redistribute third-party articles, passages or reviews.
 
-The completed empirical contribution is the small-versus-base NLI verifier study. Consistency-only and combined EviConsist effectiveness remain unestablished. Experimental interval code, synthetic checks, and engineering fixes are research artifacts, not approved statistical procedures or positive detector results. The original failed methods and revision history are documented in the protocol files.
+The completed empirical contribution is the small-versus-base NLI verifier study. Consistency-only and combined EviConsist effectiveness remain unestablished. Unrelated interval experiments, synthetic checks and engineering-debugging workflows are excluded from this public paper repository and remain preserved locally.
 
 The original source snapshots and prediction archives used for the completed metrics are retained locally. Code paths in historical runners refer to dated experiment directories; they are not a one-command portable release of every historical execution environment. Cached prediction-level data is needed to regenerate PR, reliability and risk–coverage curves. Aggregate tables and task/confusion/sensitivity plots can be regenerated from the public aggregate JSON.
 
