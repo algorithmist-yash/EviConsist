@@ -1,0 +1,28 @@
+{
+  "responses": 17790,
+  "sources": 2965,
+  "official_splits": {
+    "train": 15090,
+    "test": 2700
+  },
+  "quality": {
+    "good": 17617,
+    "truncated": 29,
+    "incorrect_refusal": 144
+  },
+  "tasks": {
+    "Summary": 943,
+    "Data2txt": 1033,
+    "QA": 989
+  },
+  "implicit_true_spans": 1928,
+  "positive_responses": 7010,
+  "source_overlap": [],
+  "missing_sources": [],
+  "invalid_span_response_ids": [],
+  "dataset_commit": "c103204b9ce28d6bbad859304bf30de72b8ed8fe",
+  "file_sha256": {
+    "response.jsonl": "bcc251fdd46341e8e9975879516a726b16dad5cb46bd5781dbcfc1ac0e01a640",
+    "source_info.jsonl": "859f513630e520edc73a59a01bc75d4c2b6f0481cf39ad8c0761ff8bdc00a78f"
+  }
+}

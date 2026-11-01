@@ -1,0 +1,21 @@
+{
+  "generated": "2026-11-01",
+  "creator": "Local Matplotlib scripts; AI-assisted code, no external figure/image reuse",
+  "input": "results/submission_preparation_2026_11_01/VERIFIED_PAPER_RESULTS.json",
+  "input_sha256": "3393e879cc962f9d0eae770cb0b7cca4e95dd8bf8ebaebe0afd3a0fbf4f09f26",
+  "figure_files": {
+    "pipeline_original.pdf": "6894807e2da79edcdb936077fc7e3554f258b5b951ecdc163e38386316cc48e6",
+    "pipeline_original.png": "27e96a17f8c9328a4b8caa48bc63b9a5931a7a65994e0236a0733f181fa2e6f4",
+    "pipeline_original.svg": "0bc7507240085cde4f00abcddf1701d88267ee1245fa000f601f95f3ea59a717",
+    "task_tradeoffs_original.pdf": "a464fc73ea87a32b6fbf0f8f8fd30cde287b48d77bf3bf38b5d9f3d5e77eb177",
+    "task_tradeoffs_original.png": "6a07280ecaaf0a5027605415578041f57c032dc52615fa5c73bc350362966026",
+    "task_tradeoffs_original.svg": "189700fc0720c2597c979774a009e54d618b334872cebac74a87cf5dc4f79afa",
+    "confusion_original.pdf": "a9d8a1feb3b2f022ea6a46e39e60d3ac4873ff6e4fe86a242312f75384ffcf71",
+    "confusion_original.png": "0340e90ea3f460393cfeb94feb5e6ae9d0439072c58ba3b14a964d92661f7a5f",
+    "confusion_original.svg": "49d7ad5fa0ac18410f643f9fddbeae9c662f9d53571079406b13ab31dee36ab5",
+    "overlap_sensitivity_original.pdf": "0dd5c8fab4461bd7d92bce6bbb5b51ee1d8376f4e05daff3dac95efeb6dd31ab",
+    "overlap_sensitivity_original.png": "cd967e4e4de000ce2202b8d0c0ad3cead66478174d40e27b3ed2428fad5ee25f",
+    "overlap_sensitivity_original.svg": "863ac5a413e463c802194e115ff72bb1da000abf07ec6857e2b6e0cf881fd81c"
+  },
+  "note": "pipeline_original is schematic; remaining figures use measured saved-prediction metrics. No error bars or new inferential claims are invented."
+}

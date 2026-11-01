@@ -1,0 +1,186 @@
+\documentclass[conference,a4paper]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx,booktabs,array}
+\usepackage{cite}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\newcommand{\method}{\textsc{EviConsist}}
+\title{Evidence Verification for Hallucination Detection:\\A Controlled Verifier Study on RAGTruth}
+\author{\IEEEauthorblockN{Shreyanshu Ranjan, Yash Raj, Shubham Singh,\\Sukrit Srivastava, and Sparsh Bajoria}
+\IEEEauthorblockA{School of Computer Science, KIIT Deemed to be University\\
+\{2305013,2305019,2305084,2305093,2329214\}@kiit.ac.in}}
+\hypersetup{pdftitle={Evidence Verification for Hallucination Detection: A Controlled Verifier Study on RAGTruth},pdfauthor={Shreyanshu Ranjan, Yash Raj, Shubham Singh, Sukrit Srivastava, Sparsh Bajoria}}
+\begin{document}
+\maketitle
+\begin{abstract}
+Evidence-based hallucination detectors can miss support or overinterpret natural-language-inference scores, producing many false alarms despite high recall. We study verifier choice in a fixed retrieval-and-classification pipeline on RAGTruth. The original pipeline processes 17,617 eligible responses; a controlled comparison replaces a small DeBERTa NLI verifier with its base counterpart while preserving evidence windows, sentence segmentation, labels, features, and classifier-training protocol. Each system's threshold is selected independently to maximize validation precision subject to at least 90\% validation recall. On the same 2,675 test responses, precision increases from 0.3834 to 0.4087, AUROC from 0.6426 to 0.7016, and average precision from 0.4257 to 0.4847. False positives decrease from 1,256 to 1,153, while achieved test recall changes from 0.8736 to 0.8915. Task-stratified results show that pooled gains conceal different operational trade-offs. A post-hoc sensitivity analysis excluding 72 responses in flagged cross-fold source components retains a similar precision difference. Shared-content findings, conditional bootstrap uncertainty, weak sentence localization, and remaining false alarms limit generalization claims. The study establishes a reproducible evidence-only reference for EviConsist; it does not establish the effectiveness of combining evidence verification with self-consistency.
+\end{abstract}
+\begin{IEEEkeywords}
+hallucination detection, natural language inference, evidence verification, RAGTruth, reproducibility, large language models
+\end{IEEEkeywords}
+
+\section{Introduction}
+Retrieval-augmented language generation can produce responses that disagree with, or exceed, the supplied evidence. Detecting these failures requires distinguishing fluent text from supported text. A practical detector must also control false alarms: a system that identifies most hallucinations but flags many supported answers can impose substantial review effort.
+
+Evidence-based detection commonly couples passage retrieval with a verifier. This creates a diagnostic ambiguity. A high unsupported score may arise because the claim is unsupported, because retrieval missed relevant material, or because the verifier misread the retrieved passage. Improving the verifier alone may help, but its effect should be measured with retrieval and downstream training held fixed. Otherwise, changes in evidence or decision thresholds can be mistaken for verification improvements.
+
+This paper reports a completed, controlled comparison between two NLI verifiers in the evidence-only component of \method. It asks three bounded questions: (1) does verifier replacement improve response-level ranking and precision at independently validation-selected high-recall operating points; (2) do pooled results describe all three task types adequately; and (3) how sensitive are the findings to subsequently discovered shared-content relationships? We evaluate existing benchmark responses rather than generate new test answers.
+
+The contributions are an audited implementation of a sentence-window evidence detector, a frozen small-versus-base verifier comparison, and a saved-prediction analysis of task variation and source-overlap sensitivity. These are engineering and empirical contributions, not a new NLI architecture, state-of-the-art benchmark claim, or proof of self-consistency/evidence complementarity. The latter remains future work.
+
+\section{Related Work}
+RAGTruth provides a corpus for studying unsupported and contradictory content in retrieval-augmented responses, including span-level annotations \cite{ragtruth}. Our study uses its supplied responses and evidence, with an explicit response-label mapping and quality filter. It does not directly compare its operational results with published RAGTruth detector scores because evaluation settings and label mappings may differ.
+
+Fine-grained factuality assessment motivates separating supported units from unsupported ones. FActScore decomposes generations into atomic facts and estimates their support \cite{factscore}; AlignScore learns an alignment function for factual-consistency assessment \cite{alignscore}. Our simpler sentence proxies are not atomic facts, and our logistic risk score is not an estimate of the proportion of true facts. The NLI checkpoints used here are existing cross-encoders trained for contradiction, entailment, and neutral prediction \cite{smallcard,basecard}. Their outputs require evaluation in the downstream detection task.
+
+SelfCheckGPT uses comparisons among sampled responses as a factuality signal \cite{selfcheck}. This is distinct from verification against supplied source text. RAGTruth's existing outputs come from different generators and are not automatically controlled same-model samples. We therefore do not treat them as a consistency baseline or claim that a fused detector has been evaluated.
+
+\section{Data and Evaluation Protocol}
+\subsection{Audited Dataset and Operational Labels}
+The audited local RAGTruth snapshot contains 17,790 responses associated with 2,965 source records. Its quality flags comprise 17,617 \texttt{good}, 29 \texttt{truncated}, and 144 \texttt{incorrect\_refusal} responses. We include only \texttt{good} responses. The three source tasks are summarization, question answering (QA), and structured data-to-text generation (Data2txt).
+
+For a response $y$, the binary target is
+\begin{equation}
+h(y)=\mathbb{1}\{\exists a\in\mathcal{A}(y):a.\texttt{implicit\_true}=\mathrm{false}\},\label{eq:label}
+\end{equation}
+where $\mathcal{A}(y)$ is its benchmark span-annotation set. Equation~\eqref{eq:label} defines this study's operational mapping of the RAGTruth annotations~\cite{ragtruth}; annotations marked \texttt{implicit\_true} do not independently make a response positive. This is not a claim that all unsupported-looking spans are false. No new assistant-generated pilot labels are used in these detector results. Gold spans are never supplied to retrieval or the NLI verifier.
+
+Official test responses retain their test assignment. Within official training data, source IDs whose SHA-256 integer is zero modulo five form validation; the remainder form training. All responses with the same source ID share a fold. Table~\ref{tab:data} gives eligible counts. No source ID appears in both development and test, but distinct IDs can share content; Section~\ref{sec:overlap} explicitly addresses that limitation. The test filter excludes 25 non-good official test responses.
+
+\input{tables/dataset_counts.tex}
+
+\subsection{Frozen Comparison}
+The original verifier is \texttt{cross-encoder/nli-deberta-v3-small}; the alternative is \texttt{cross-encoder/nli-deberta-v3-base}. Both revisions are pinned. The alternative receives the same cached sentence text, offsets, evidence windows, response IDs, labels, and folds. A separate logistic classifier is fitted for each verifier using the same training procedure, because the verifier's score distribution changes. This comparison isolates checkpoint replacement within the pipeline; it cannot separate model scale from every difference between the two pretrained checkpoints.
+
+For each detector, validation chooses the observed score threshold maximizing precision subject to recall $\geq0.90$. The highest threshold resolves ties; no interpolation is used. The locked thresholds are 0.3147011136 (small) and 0.2969119747 (base). Achieved validation recalls are 0.9000 and 0.9008. Models and thresholds remain fixed for test evaluation. The original small detector also has a historical F1-selected threshold of 0.29; we report it separately rather than substitute it into the matched-recall comparison.
+
+\subsection{Metrics and Uncertainty}
+We report precision, recall, F1, confusion counts, AUROC, scikit-learn average precision (AP), Brier score, and expected calibration error over ten equal-width risk bins (ECE)~\cite{sklearnmetrics,guocalibration}. AP is not trapezoidal precision--recall area. Test AP is interpreted relative to the test prevalence of 0.3342, not the prevalence of the full dataset. For $N$ responses with risks $p_i$ and binary labels $h_i$, the probability-quality summaries are
+\begin{align}
+\mathrm{Brier}&=\frac{1}{N}\sum_{i=1}^{N}(p_i-h_i)^2,\label{eq:brier}\\
+\mathrm{ECE}&=\sum_{b=1}^{10}\frac{|B_b|}{N}\left|\overline{p}_{B_b}-\overline{h}_{B_b}\right|,\label{eq:ece}
+\end{align}
+where $B_b$ are equal-width positive-risk bins; empty bins contribute zero. Equations~\eqref{eq:brier} and~\eqref{eq:ece} evaluate the binary risk directly, rather than multiclass maximum-confidence calibration. For diagnostic selective acceptance, coverage is the fraction of lowest-risk responses accepted, and risk is their empirical positive-label rate.
+
+Archived uncertainty estimates use 1,000 paired percentile-bootstrap replicates, seed 42, resampling the 450 test source IDs with replacement and applying the same sampled sources to both detectors. The models and thresholds are fixed. These intervals are descriptive, conditional summaries: they omit training and threshold-selection variability, assume source IDs are suitable resampling units, and are not certified simultaneous intervals or formal noninferiority tests. Shared content across IDs further limits their interpretation. The later equal-task precision/recall inference investigation is a separate study and supplies no statistical approval for these intervals.
+
+\section{Evidence-Only Detector}
+Figure~\ref{fig:pipeline} depicts the implemented pipeline. Its artwork is generated locally from the system design; the result figures below are generated from the saved test predictions and metrics.
+\begin{figure}[t]
+\centering\includegraphics[width=\columnwidth]{figures/pipeline_original.pdf}
+\caption{Original schematic of the evidence-only detector. The verifier checkpoint changes between systems; evidence windows and downstream training protocol are held fixed. Source text and target responses enter retrieval and verification, while gold labels enter only classifier training and evaluation.}
+\label{fig:pipeline}
+\end{figure}
+\subsection{Sentence Proxies and Retrieval}
+Responses are split by a deterministic punctuation/newline regular expression that preserves character offsets. These units can contain multiple claims or lose contextual qualifiers; we call them sentence proxies. Source context is split into overlapping 120-word windows with stride 80. For each response, a TF--IDF vectorizer is fitted to its source windows and sentence proxies without labels. Cosine-equivalent normalized dot products rank windows; stable sorting retains up to three per sentence. There is no web retrieval.
+
+For QA, evidence consists of supplied passages, with the question excluded from NLI premises. Summaries use their source text. Data2txt inputs are recursively flattened with field names and values preserved. Changing the verifier does not rerun or alter these retrieval decisions.
+
+\subsection{Verification and Response Features}
+For sentence $s_j$ and retrieved window $e_{jk}$, NLI produces contradiction, entailment, and neutral probabilities. Define
+\begin{align}
+u_j &= 1-\max_k q_{jk}^{\mathrm{ent}},\label{eq:unsupported}\\
+v_j &= \max_k q_{jk}^{\mathrm{con}},\label{eq:contradiction}\\
+\mathbf{x}(y)&=\left[\max_j u_j,\ \max_j v_j,\ \frac{1}{m}\sum_{j=1}^{m}u_j\right].\label{eq:features}
+\end{align}
+Equations~\eqref{eq:unsupported}--\eqref{eq:features} define the implemented aggregation rules, rather than a new probabilistic theorem. Maximum entailment and contradiction can come from different windows. Consequently, these aggregates need not form one coherent evidence judgment. In particular, $u_j$ combines neutral and contradictory outcomes rather than separating insufficient retrieval from factual error.
+
+A logistic regression with random seed 42 maps $\mathbf{x}(y)$ to a response score using the standard logistic link~\cite{sklearnlr}:
+\begin{equation}
+\widehat{p}(y)=\left[1+\exp\left(-b-\boldsymbol{\beta}^{\top}\mathbf{x}(y)\right)\right]^{-1}.\label{eq:logistic}
+\end{equation}
+Equation~\eqref{eq:logistic} uses fitted coefficients $\boldsymbol{\beta}$ and intercept $b$. Training uses the saved scikit-learn default configuration for both checkpoints; no verifier fine-tuning or task-specific classifier is performed. NLI inference uses float32, batch size 16, four CPU threads, a 512-token maximum, and premise-only truncation. Observed truncation counts are recorded rather than inferred from window lengths. No post-hoc probability calibration is fitted.
+
+\subsection{Reproducibility and Execution}
+The dataset commit is \texttt{c103204b9ce28d6bbad859304bf30de72b8ed8fe}. The small and base checkpoint revisions are respectively \texttt{fa2804872c3b4bd748f38c0185cc85775361e735} and \texttt{6c749ce3425cd33b46d187e45b92bbf96ee12ec7}. Configuration hashes, dataset checksums, fitted coefficients, predictions, environments, and migration checks are retained with the experiment artifacts. The recorded dependency lock includes scikit-learn 1.9.1, PyTorch 2.14.1, and Transformers 5.19.0.
+
+Inference began on Windows CPU and continued on native Apple Silicon CPU. Limited migration checks found maximum NLI-probability differences of $5.48\times10^{-6}$ for the original checkpoint and $2.11\times10^{-6}$ for the alternative, below the recorded $10^{-4}$ continuation tolerance. These checks do not establish bitwise identity. Model inference is complete; saved predictions, rather than live progress counters, determine the reported sample counts.
+
+\section{Results}
+\subsection{Validation and Historical Operating Point}
+At its historical threshold 0.29, the small detector obtains test precision 0.3772, recall 0.9139, and F1 0.5340, with 1,349 false positives and 77 false negatives. Its high detection rate therefore comes with many false alarms. Raising a threshold after viewing test errors would not be a valid improvement experiment.
+
+Under the separate validation matched-recall rule, small/base precision is 0.4869/0.5075, with 1,176/1,084 false positives. Validation AUROC is 0.6422/0.6917 and AP is 0.5287/0.5789. Brier score improves from 0.2286 to 0.2189, while ECE worsens from 0.0293 to 0.0364. These validation results motivated freezing the base alternative for the test comparison; they are not independent evidence of generalization.
+
+\subsection{Frozen Test Comparison}
+Table~\ref{tab:test} reports the same 2,675 responses for both models. The base checkpoint has 0.0253 higher precision and 103 fewer false positives, an 8.2\% reduction relative to 1,256. Its achieved recall is 0.8915 versus 0.8736; neither necessarily equals the validation target. No recall noninferiority margin was prespecified for this completed comparison, so a formal recall-retention conclusion is not warranted.
+
+\input{tables/verifier_test_results.tex}
+
+Ranking improves in the pooled sample: AUROC increases by 0.0589 and AP by 0.0590. Base AP is approximately 1.45 times test prevalence, compared with 1.27 for small. Nonetheless, base precision remains below 0.41 at this operating point; most flagged responses are negative under the operational labels. Figure~\ref{fig:diagnostics} presents precision--recall, reliability, and selective-acceptance diagnostics. The curves are post-hoc descriptions of frozen predictions and were not used to select new thresholds.
+
+Figure~\ref{fig:confusion} visualizes the measured confusion counts on a common color scale. The alternative reduces false positives overall, but 1,153 false alarms remain.
+\begin{figure}[t]
+\centering\includegraphics[width=\columnwidth]{figures/confusion_original.pdf}
+\caption{Original confusion-matrix plots from the 2,675 frozen test predictions. Rows denote actual labels; columns denote predictions at each model's locked threshold. Color scales are identical.}
+\label{fig:confusion}
+\end{figure}
+
+\begin{figure*}[t]
+\centering\includegraphics[width=\textwidth]{figures/verifier_diagnostics.pdf}
+\caption{Diagnostics from the same frozen test predictions. Left: precision--recall curves with prevalence reference. Center: ten-bin reliability curves, displaying nonempty bins. Right: positive-label rate among responses accepted in ascending predicted-risk order; ties follow the saved response order. Selective risk here is not classification error. These are descriptive plots, not additional calibration training or confirmation experiments.}
+\label{fig:diagnostics}
+\end{figure*}
+
+\subsection{Task-Stratified Findings}
+Table~\ref{tab:tasks} is a post-hoc analysis using the same global locked thresholds. Positive prevalence ranges from 0.1531 in QA to 0.6267 in Data2txt. Higher Data2txt precision cannot therefore be interpreted as intrinsically superior detection. All tasks have higher base AUROC and AP, but operational effects differ. Summary gains precision while recall falls from 0.8112 to 0.7908. Data2txt gains recall but adds eight false positives (278 to 286). Pooled recall improvement does not establish retention within every task, and pooled calibration can hide large task-specific errors.
+
+Figure~\ref{fig:task-tradeoffs} makes these distinct precision--recall trade-offs visible. No task-specific threshold tuning is performed.
+\begin{figure}[t]
+\centering\includegraphics[width=\columnwidth]{figures/task_tradeoffs_original.pdf}
+\caption{Original task-level plots from saved test results, at unchanged global thresholds. Both vertical axes start at zero. Labels are rounded to two decimal places; Table~\ref{tab:tasks} gives higher precision. These are descriptive point estimates without invented error bars.}
+\label{fig:task-tradeoffs}
+\end{figure}
+
+\input{tables/task_results.tex}
+
+\subsection{Source-Overlap Sensitivity}\label{sec:overlap}
+Later audits identified two exact QA-passage relationships spanning historical training and test folds, affecting 12 test responses. Another exact Summary-content pair spans training and validation. A broader deterministic scan of 2,965 source records found 66 pairs sharing at least 40 contiguous normalized words, with 29 pairs crossing historical folds. These are verified shared-text flags, not an exhaustive semantic-duplicate audit or proof of performance bias.
+
+We form conservative connected components from these flagged edges and the previously recorded related-source edges. As a post-hoc sensitivity check, test sources connected to any official-training source are excluded. The check removes 12 test sources and 72 responses, leaving 2,603 responses from 438 source IDs. Models, scores, and thresholds are unchanged; this is not a newly collected test set, retraining experiment, or claim of complete independence.
+
+\input{tables/overlap_sensitivity.tex}
+
+The precision difference remains approximately 0.0251 after the broader exclusion, with recall 0.8727/0.8899 and AP 0.4282/0.4864. This suggests that the observed point-estimate pattern is not confined to the identified test-linked records. It does not undo training--validation overlap, detect unflagged dependencies, or validate the original source-bootstrap assumptions.
+
+\subsection{Error Diagnosis and Computational Cost}
+An exploratory review sampled 100 validation false positives and 50 validation false negatives. One assistant assigned provisional primary categories, preserving original working diagnoses; no independent human error-category validation or gold relabeling was performed. Among reviewed false positives, verification (30), context/attribution (29), segmentation (20), and retrieval (15) dominated. The sample was stratified, so these counts are not estimated population cause frequencies. False-negative notes included unsupported/contradicted claims (22) and verification errors (14); the former describes the evidence relationship rather than a causal mechanism.
+
+The historical small-detector sentence-overlap proxy achieves test precision 0.1070, recall 0.7056, and F1 0.1858 at its validation-selected sentence threshold. This weak localization reinforces that response-level gains do not establish atomic-claim or exact-span detection quality.
+
+The original all-fold inference record contains 389,371 NLI pairs, zero observed truncations, and 33,019.57 cumulative seconds across Windows and Mac CPU execution. The alternative test continuation records 56,317 newly computed pairs, zero truncations, and 4,118.21 cumulative inference seconds. Pair caches affect newly computed work. These scopes and hardware histories differ, so neither a relative speedup nor a controlled cost--accuracy advantage can be inferred.
+
+\section{Discussion and Limitations}
+The controlled comparison supports using the base checkpoint as an evidence-only reference in subsequent research, but not unqualified deployment. Precision remains low, summary recall decreases, and the benchmark's task mixture influences pooled results. Treating all unentailed text as hallucinated can conflate missing evidence with contradiction. Retrieval, segmentation, window aggregation, and label interpretation remain plausible error sources that a larger checkpoint alone cannot eliminate.
+
+Our study compares only two checkpoints and one shallow aggregation design. It does not establish superiority over specialized hallucination detectors, include a retrieval/segmentation ablation, or measure generalization to unseen generator families or new domains. Fixed test examples have now been inspected; future model selection must use development data and future confirmation needs an appropriately independent source frame.
+
+The operational labels are derived from existing RAGTruth annotations, not newly validated factuality judgments. Excluding incorrect refusals and truncated responses narrows the population. A response-level positive label ignores hallucination extent, and sentence proxies can overlap spans without isolating the factual error. Assistant-generated silver-label pilots and statistical-engineering simulations from the broader project are not evidence for the detector results reported here.
+
+\method's intended consistency-plus-evidence comparison remains unresolved. A valid extension requires controlled same-generator sampling, labels for the actual target responses, matched evaluation examples, and a justified inference procedure. Repeated agreement is not proof of factuality. Software tests and optimizer certification, including later repairs, do not substitute for that effectiveness experiment.
+
+\section{Conclusion}
+Replacing the small NLI verifier with the base checkpoint in a fixed evidence-only pipeline improves pooled test precision by 2.53 percentage points and AUROC by 0.0589, with 103 fewer false positives at independently validation-selected high-recall operating points. Task analysis reveals a summary-recall decrease and minimal Data2txt precision change. Post-hoc shared-content exclusions preserve a similar precision difference but do not establish full source independence. These results provide an auditable evidence-verification reference with explicit failure modes; whether self-consistency adds useful information remains an open empirical question.
+
+\section*{Reproducibility and Data Availability}
+The project repository is \href{https://github.com/algorithmist-yash/EviConsist}{github.com/algorithmist-yash/EviConsist}~\cite{repository}. It provides the implementation, manuscript source, original figure-generation code, configuration records, and aggregate result tables. Response-level prediction archives and raw corpus text remain local. The accompanying analysis script recomputes the reported point estimates and plots from those saved predictions without retraining or threshold tuning; regenerating prediction-level curves requires those local artifacts. Upstream article, passage, and review rights are not inferred from repository licensing, and raw source text is not redistributed. Provider/release provenance remains an acknowledged limitation.
+
+\section*{Acknowledgment}
+OpenAI ChatGPT/Codex was used for implementation assistance, annotation-policy exploration, provisional error categorization, analysis and plotting code, and drafting and revising text throughout this manuscript. Provisional assistant reviews are identified as such and are not presented as independent human annotations. The reported detector labels come from the benchmark's existing annotations under the stated mapping. AI assistance is not authorship or independent validation.
+
+\begin{thebibliography}{00}
+\bibitem{ragtruth} C.~Niu \emph{et al.}, ``\href{https://aclanthology.org/2024.acl-long.585/}{RAGTruth: A hallucination corpus for developing trustworthy retrieval-augmented language models},'' in \emph{Proc. ACL}, 2024, pp.~10862--10878, doi: \href{https://doi.org/10.18653/v1/2024.acl-long.585}{10.18653/v1/2024.acl-long.585}.
+\bibitem{factscore} S.~Min \emph{et al.}, ``\href{https://arxiv.org/abs/2305.14251}{FActScore: Fine-grained atomic evaluation of factual precision in long form text generation},'' arXiv:2305.14251, 2023, doi: \href{https://doi.org/10.48550/arXiv.2305.14251}{10.48550/arXiv.2305.14251}.
+\bibitem{alignscore} Y.~Zha, Y.~Yang, R.~Li, and Z.~Hu, ``\href{https://aclanthology.org/2023.acl-long.634/}{AlignScore: Evaluating factual consistency with a unified alignment function},'' in \emph{Proc. ACL}, 2023, pp.~11328--11348, doi: \href{https://doi.org/10.18653/v1/2023.acl-long.634}{10.18653/v1/2023.acl-long.634}.
+\bibitem{smallcard} Sentence Transformers, ``cross-encoder/nli-deberta-v3-small,'' model card, accessed Nov.~1, 2026. [Online]. Available: \url{https://huggingface.co/cross-encoder/nli-deberta-v3-small}
+\bibitem{basecard} Sentence Transformers, ``cross-encoder/nli-deberta-v3-base,'' model card, accessed Nov.~1, 2026. [Online]. Available: \url{https://huggingface.co/cross-encoder/nli-deberta-v3-base}
+\bibitem{selfcheck} P.~Manakul, A.~Liusie, and M.~J.~F.~Gales, ``\href{https://aclanthology.org/2023.emnlp-main.557/}{SelfCheckGPT: Zero-resource black-box hallucination detection for generative large language models},'' in \emph{Proc. EMNLP}, 2023, pp.~9004--9017, doi: \href{https://doi.org/10.18653/v1/2023.emnlp-main.557}{10.18653/v1/2023.emnlp-main.557}.
+\bibitem{sklearnmetrics} scikit-learn developers, ``\href{https://scikit-learn.org/stable/modules/model_evaluation.html}{Metrics and scoring: Quantifying the quality of predictions},'' scikit-learn documentation, accessed Nov.~1, 2026. [Online]. Available: \url{https://scikit-learn.org/stable/modules/model_evaluation.html}
+\bibitem{guocalibration} C.~Guo, G.~Pleiss, Y.~Sun, and K.~Q.~Weinberger, ``\href{https://proceedings.mlr.press/v70/guo17a.html}{On calibration of modern neural networks},'' in \emph{Proc. ICML}, vol.~70, 2017, pp.~1321--1330.
+\bibitem{sklearnlr} scikit-learn developers, ``\href{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html}{LogisticRegression},'' scikit-learn documentation, accessed Nov.~1, 2026. [Online]. Available: \url{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html}
+\bibitem{repository} S.~Ranjan, Y.~Raj, S.~Singh, S.~Srivastava, and S.~Bajoria, ``\href{https://github.com/algorithmist-yash/EviConsist}{EviConsist: Evidence verification for hallucination detection},'' project source repository, 2026. [Online]. Available: \url{https://github.com/algorithmist-yash/EviConsist}
+\end{thebibliography}
+\end{document}

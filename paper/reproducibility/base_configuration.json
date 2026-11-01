@@ -1,0 +1,22 @@
+{
+  "model": "cross-encoder/nli-deberta-v3-base",
+  "revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+  "source_sha256": "b1f4902d32fdca03c20deadaf1b8831a52f8ecb2046b3d5a0beb7de10e47188f",
+  "code_sha256": "1075e5573bdf520c0bbd679cad5bfc848b9d84e57defd652256ec57a90155169",
+  "folds": [
+    "train",
+    "validation"
+  ],
+  "threads": 4,
+  "batch_size": 16,
+  "max_length": 512,
+  "truncation": "only_first",
+  "label_order": [
+    "contradiction",
+    "entailment",
+    "neutral"
+  ],
+  "training": "LogisticRegression(random_state=42), defaults",
+  "threshold_rule": "maximum precision at validation recall >=0.90; highest threshold breaks ties",
+  "original_threshold": 0.29
+}

@@ -1,0 +1,30 @@
+{
+  "model": "cross-encoder/nli-deberta-v3-small",
+  "revision": "fa2804872c3b4bd748f38c0185cc85775361e735",
+  "top_k": 3,
+  "batch_size": 16,
+  "threads": 4,
+  "limit_per_fold": 0,
+  "seed": 42,
+  "quality": "good",
+  "validation": "sha256(source_id) modulo 5 = 0 within official train",
+  "evidence_window_words": 120,
+  "evidence_stride_words": 80,
+  "max_tokens": 512,
+  "features": [
+    "max_unsupported",
+    "max_contradiction",
+    "mean_unsupported"
+  ],
+  "threshold": "maximize validation response F1 on 0.00..1.00 at step 0.01; lowest threshold breaks ties",
+  "dataset_sha256": {
+    "response.jsonl": "bcc251fdd46341e8e9975879516a726b16dad5cb46bd5781dbcfc1ac0e01a640",
+    "source_info.jsonl": "859f513630e520edc73a59a01bc75d4c2b6f0481cf39ad8c0761ff8bdc00a78f"
+  },
+  "code_sha256": {
+    "baseline.py": "d1d05adafd5c065f8837289ff68066fd5a2a6e0f94d2303b202dc0dd83c9cbb7",
+    "full_baseline.py": "bdfaa1ab6cff375e8dc66891b9375d32bd414517f546a6114da45fd555221680",
+    "experiment_report.py": "8cdad302df9a6cb93eecf1fd65b77be858f06d85f876de61745009bb6727ce5b"
+  },
+  "environment_sha256": "14bef5a78ac7fa1634006564cfbd5774d7155fe8a5089b4a2074309e25188126"
+}

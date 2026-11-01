@@ -1,0 +1,6 @@
+# Preserve recorded source bytes across operating systems for hash-based audits.
+* -text
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary

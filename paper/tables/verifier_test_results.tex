@@ -1,0 +1,17 @@
+% Original table from audited local results; no external table reuse.
+\begin{table}[t]
+\caption{Frozen test results. Differences are base minus small; intervals are archived conditional percentile summaries, not validated simultaneous coverage guarantees.}
+\label{tab:test}\centering\footnotesize
+\begin{tabular}{lrrl}\toprule
+Metric & Small & Base & Descriptive 95\% interval\\\midrule
+Precision & .3834 & .4087 & [.0140, .0367]\\
+Recall & .8736 & .8915 & [$-$.0066, .0425]\\
+F1 & .5329 & .5605 & [.0139, .0414]\\
+AUROC & .6426 & .7016 & [.0384, .0807]\\
+AP & .4257 & .4847 & [.0334, .0845]\\
+Brier & .2137 & .2019 & [$-$.0161, $-$.0074]\\
+ECE & .0631 & .0569 & [$-$.0136, .0075]\\\midrule
+TP / FP & 781 / 1256 & 797 / 1153 & ---\\
+TN / FN & 525 / 113 & 628 / 97 & ---\\\bottomrule
+\end{tabular}
+\end{table}

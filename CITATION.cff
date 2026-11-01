@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "Please cite this project if you use its code or original figures."
+title: "Evidence Verification for Hallucination Detection: A Controlled Verifier Study on RAGTruth"
+type: software
+authors:
+  - family-names: Ranjan
+    given-names: Shreyanshu
+  - family-names: Raj
+    given-names: Yash
+  - family-names: Singh
+    given-names: Shubham
+  - family-names: Srivastava
+    given-names: Sukrit
+  - family-names: Bajoria
+    given-names: Sparsh
+repository-code: "https://github.com/algorithmist-yash/EviConsist"
+url: "https://github.com/algorithmist-yash/EviConsist"
+date-released: 2026-11-01
+version: "0.1.0"

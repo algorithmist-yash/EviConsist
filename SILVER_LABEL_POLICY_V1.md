@@ -1,0 +1,37 @@
+# Assistant-generated silver-label policy v1 — 16 October 2026
+
+This is a deliberate **silver-label mode**, supplementing ANNOTATION_POLICY.md v1. It does not redefine assistant decisions as human gold. Original gold files, human gates, proposal versions and completed detector experiments remain unchanged.
+
+## Frozen reference and operational rubric
+
+Freeze proposal v2 and both earlier proposal/adjudication artifacts with hashes. Its 12 response decisions are reference examples only: five positive, five negative, one uncertain, one incorrect-refusal exclusion. Do not train on this 12-target reference set or create proposal v3. Keep the four version disagreements visible and do not describe them as independent reviewers or human agreement.
+
+Preserve v2 exactly: `sophisticated` is uncertain; Mercado's late-night schedule, courthouse proximity and habitual customer-return claims are unsupported under this **chosen operational specificity rule**, with their v2 rationales and the actual source evidence attached. This is an explicit user-directed rubric freeze, not automatic adoption of the latest version as truth. Evidence of 9 PM opening, a courthouse outing and one reviewer's return intention remains visible. These cues do not establish the broader/generalized claims under the frozen rubric. Fan-concern attribution, fluid-flywheel wear and `cozy` remain uncertain. No uncertainty is resolved merely to achieve class balance.
+
+## Claim rules
+
+Use supplied source evidence, including QA question and all structured fields/reviews; no external fact lookup, detector scores, consistency samples, historical labels or desired class counts. Ordinary context-preserving paraphrase is supported. A material unsupported assertion lacks adequate warrant; contradiction requires a conflicting same-entity/property/relation proposition. Explicit false differs from null. Preserve attribution, agent/beneficiary direction, causality and population/time/frequency scope. Do not silently decode undocumented hour sentinels. Mark genuinely ambiguous semantics uncertain, including differences between a subjective adjective and related but non-identical source fields. New cases follow these rules rather than memorizing reference surface words.
+
+Review each complete target. Record exact zero-based half-open target spans, kind, source pointers/quoted evidence, rationale and confidence. An adequate negative requires explicit complete review with no positive or unresolved material claim. An accepted positive supports a positive response even if additional claims remain uncertain; mark localization incomplete. Incorrect refusal is a response-quality exclusion, not a hallucination span or a factuality negative. Appropriate refusal for an unanswerable/incomplete question can be an adequate negative. Retain truncated/source-ambiguous/other failures and report coverage; no selective resampling.
+
+## Separate format and training gate
+
+SILVER_LABEL_SCHEMA_V1.json and silver_labels.py define separate records. Required provenance: `label_origin=assistant_generated`, policy/schema versions and hashes, target/source identity hashes, full text/source, reviewer/model identifier (null if unknown), source proposal provenance when applicable, confidence, uncertainty, span evidence, and timing scope. `gold` stays null; all human-validation flags stay false. Silver responses use `silver_label`, not `gold`. Pending labels remain null and are not completed negatives.
+
+The human-gold training path remains intact. A future training consumer must explicitly request `label_mode=silver`, validate this schema/provenance and use a locked larger research cohort. The 12 reference examples and the 120-source annotation-policy pilot are never eligible for that consumer. No detector-fitting command is supplied in this phase. No pipeline may copy silver labels into gold or mark human adjudication complete.
+
+## 120-source workflow pilot
+
+Prepare **120 new development targets**, 40 per task, each with five comparison samples (720 generation slots). New means new target/source selection relative to the 12-source pilot, not untouched confirmatory sources. Sources come only from the historical RAGTruth training-development pool; the 450 examined test sources are excluded. Select deterministically without labels/scores, exclude the original 12 and exact/near-duplicate sources within this workflow, and retain the <=6,000-character feasibility restriction and its selection bias. All target/samples of a source stay together in `annotation_policy_development`; no detector train/test split is claimed yet.
+
+Use the successful pinned Qwen MPS float32 generator, unchanged prompts, temperature 0.8, top-p 0.95, top-k 0, 256 new tokens, source-derived independent seeds and 3,840 input-token limit without silent truncation/fallback. Record weights revision, actual runtime, prompts, output lengths, duplicates, cache and finish reasons. This stage performs **no NLI detector scoring**. Create blinded source-and-target packets omitting comparison samples, features and detector probabilities. The assistant reviews in fixed batches of ten, recording effort/pauses honestly and resuming by target identity. Labels depend only on source/target and the frozen rubric.
+
+Measure completion, offset validity, target-level unresolved uncertainty, quality exclusions, resolved silver-positive rate and unresolved-label bounds, task breakdowns, candidate-span counts, observed review time and missing timing. Do not call candidate-span proportions a population claim-error rate. A second same-assistant pass, if later used, measures procedural consistency only; it is not independent annotation reliability. There is no adaptive stopping or replacement based on desired outcomes. Complete the fixed 120 or report failures/unlabelled targets explicitly.
+
+## Gates after the pilot
+
+Before scaling further, inspect rubric failure modes and label sensitivity while retaining the frozen pilot. A substantive policy change needs a distinct subsequent study, not a silent rewrite of labels. No minimum acceptable uncertainty rate or performance criterion has been validated yet; report observed rates rather than inventing a pass threshold after observing outcomes.
+
+Use observed **silver** prevalence/exclusion rates for denominator planning, explicitly conditional on operational labels. Precision estimation still needs predicted-positive rates from a later, separately authorized development detector; this unscored workflow cannot estimate them. Paired source-grouped power needs joint model predictions on labelled development data, not only prevalence. The final cohort is the larger marginal-precision and paired-comparison requirement, adjusted for clustering, uncertainty, exclusions and annotation losses. Neither 120 targets nor the earlier 1,925-target approximation is the confirmatory sample size.
+
+Later compare the stronger evidence-only component, consistency-only and combined model on the same eligible silver-labelled targets under matched training/validation/calibration policies. Reserve a fresh source holdout, audited for prior exposure and duplicates; the inspected original test sources cannot confirm the combined method. Metrics measure agreement with **assistant-annotated operational silver labels**, not independently validated factuality. State this prominently in the paper. No combined-method benefit is established by this schema or pilot.
