@@ -4,8 +4,9 @@
   "resource_entries": 5,
   "total_entries": 25,
   "all_entries_cited": true,
+  "citation_numbers_link_directly_to_primary_publications": true,
   "bibliography_in_first_citation_order": true,
-  "main_tex_sha256": "e11b6f2978f3498bc88810928add2efe47bf710a860ae5855afca15b5a98e0fe",
+  "main_tex_sha256": "b55e900ff48ea95bc8b0d175325bef3e97e9f1019b5d7d8cecd0c34927452ef4",
   "references": [
     {
       "number": 1,
@@ -15,7 +16,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 26,
+          "line": 27,
           "text": "Retrieval-augmented generation combines a language model with a retrieved non-parametric information source~\\cite{lewisrag}."
         }
       ]
@@ -28,15 +29,15 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 27,
+          "line": 28,
           "text": "Retrieval-augmented responses can nevertheless contain unsupported or contradictory content~\\cite{ragtruth}."
         },
         {
-          "line": 39,
+          "line": 40,
           "text": "RAGTruth provides a corpus for studying unsupported and contradictory content in retrieval-augmented responses, including span-level annotations \\cite{ragtruth}. Our study uses its supplied responses and evidence, with an explicit response-label mapping and quality filter. It does not directly compare its operational results with published RAGTruth detector scores because evaluation settings and label mappings may differ."
         },
         {
-          "line": 79,
+          "line": 80,
           "text": "where $\\mathcal{A}(y)$ is its benchmark span-annotation set. Equation~\\eqref{eq:label} defines this study's operational mapping of the RAGTruth annotations~\\cite{ragtruth}; annotations marked \\texttt{implicit\\_true} do not independently make a response positive. This is not a claim that all unsupported-looking spans are false. No new assistant-generated pilot labels are used in these detector results. Gold spans are never supplied to retrieval or the NLI verifier."
         }
       ]
@@ -49,7 +50,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 28,
+          "line": 29,
           "text": "Human evaluation of abstractive summarization also distinguishes fluent output from content that remains faithful to its input~\\cite{maynez}."
         }
       ]
@@ -62,7 +63,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 41,
+          "line": 42,
           "text": "HaluEval evaluates hallucination recognition using generated and human-annotated examples~\\cite{halueval}."
         }
       ]
@@ -75,7 +76,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 42,
+          "line": 43,
           "text": "FEVER frames verification as evidence-based classification of claims derived from Wikipedia~\\cite{fever}."
         }
       ]
@@ -88,7 +89,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 43,
+          "line": 44,
           "text": "SciFact extends evidence-based verification to scientific claims and supporting or refuting research abstracts~\\cite{scifact}."
         }
       ]
@@ -101,7 +102,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 46,
+          "line": 47,
           "text": "FRANK introduces a factual-error typology and annotated summaries for analyzing the strengths and weaknesses of factuality metrics~\\cite{frank}."
         }
       ]
@@ -114,7 +115,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 47,
+          "line": 48,
           "text": "TRUE emphasizes standardized example-level evaluation across tasks rather than relying only on system-level correlations~\\cite{truebenchmark}."
         }
       ]
@@ -127,7 +128,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 51,
+          "line": 52,
           "text": "Fine-grained factuality assessment motivates separating supported units from unsupported ones. FActScore decomposes generations into atomic facts and estimates their support \\cite{factscore}; AlignScore learns an alignment function for factual-consistency assessment \\cite{alignscore}. Our simpler sentence proxies are not atomic facts, and our logistic risk score is not an estimate of the proportion of true facts. The NLI checkpoints used here are existing cross-encoders trained for contradiction, entailment, and neutral prediction \\cite{smallcard,basecard}. Their outputs require evaluation in the downstream detection task."
         }
       ]
@@ -140,7 +141,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 51,
+          "line": 52,
           "text": "Fine-grained factuality assessment motivates separating supported units from unsupported ones. FActScore decomposes generations into atomic facts and estimates their support \\cite{factscore}; AlignScore learns an alignment function for factual-consistency assessment \\cite{alignscore}. Our simpler sentence proxies are not atomic facts, and our logistic risk score is not an estimate of the proportion of true facts. The NLI checkpoints used here are existing cross-encoders trained for contradiction, entailment, and neutral prediction \\cite{smallcard,basecard}. Their outputs require evaluation in the downstream detection task."
         }
       ]
@@ -153,7 +154,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 51,
+          "line": 52,
           "text": "Fine-grained factuality assessment motivates separating supported units from unsupported ones. FActScore decomposes generations into atomic facts and estimates their support \\cite{factscore}; AlignScore learns an alignment function for factual-consistency assessment \\cite{alignscore}. Our simpler sentence proxies are not atomic facts, and our logistic risk score is not an estimate of the proportion of true facts. The NLI checkpoints used here are existing cross-encoders trained for contradiction, entailment, and neutral prediction \\cite{smallcard,basecard}. Their outputs require evaluation in the downstream detection task."
         }
       ]
@@ -166,7 +167,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 51,
+          "line": 52,
           "text": "Fine-grained factuality assessment motivates separating supported units from unsupported ones. FActScore decomposes generations into atomic facts and estimates their support \\cite{factscore}; AlignScore learns an alignment function for factual-consistency assessment \\cite{alignscore}. Our simpler sentence proxies are not atomic facts, and our logistic risk score is not an estimate of the proportion of true facts. The NLI checkpoints used here are existing cross-encoders trained for contradiction, entailment, and neutral prediction \\cite{smallcard,basecard}. Their outputs require evaluation in the downstream detection task."
         }
       ]
@@ -179,7 +180,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 53,
+          "line": 54,
           "text": "FactCC learns factual-consistency judgments using synthetic sentence transformations and auxiliary evidence/error-span extraction~\\cite{factcc}."
         }
       ]
@@ -192,7 +193,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 54,
+          "line": 55,
           "text": "SummaC addresses the granularity mismatch between sentence-level NLI and document-level inconsistency detection through segmentation and score aggregation~\\cite{summac}."
         }
       ]
@@ -205,7 +206,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 55,
+          "line": 56,
           "text": "QAGS compares answers to questions about a generated summary and its source as a consistency signal~\\cite{qags}."
         }
       ]
@@ -218,7 +219,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 56,
+          "line": 57,
           "text": "QAFactEval studies QA-metric components, including question generation and answerability, and reports complementary QA and entailment signals~\\cite{qafacteval}."
         }
       ]
@@ -231,7 +232,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 59,
+          "line": 60,
           "text": "SNLI supplies annotated sentence pairs for learning natural language inference~\\cite{snli}."
         }
       ]
@@ -244,7 +245,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 60,
+          "line": 61,
           "text": "MultiNLI broadens sentence-inference coverage across genres~\\cite{multinli}."
         }
       ]
@@ -257,7 +258,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 61,
+          "line": 62,
           "text": "DeBERTaV3 studies replaced-token pretraining and gradient-disentangled embedding sharing for language understanding~\\cite{debertav3}."
         }
       ]
@@ -270,7 +271,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 65,
+          "line": 66,
           "text": "SelfCheckGPT uses comparisons among sampled responses as a factuality signal \\cite{selfcheck}. This is distinct from verification against supplied source text. RAGTruth's existing outputs come from different generators and are not automatically controlled same-model samples. We therefore do not treat them as a consistency baseline or claim that a fused detector has been evaluated."
         }
       ]
@@ -283,11 +284,11 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 67,
+          "line": 68,
           "text": "Semantic entropy groups sampled answers by meaning before estimating uncertainty about their semantic content~\\cite{semanticentropy}."
         },
         {
-          "line": 68,
+          "line": 69,
           "text": "Its treatment of confabulations motivates semantic rather than purely lexical sample comparisons, but it does not make repeated agreement proof of correctness~\\cite{semanticentropy}."
         }
       ]
@@ -300,7 +301,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 91,
+          "line": 92,
           "text": "We report precision, recall, F1, confusion counts, AUROC, scikit-learn average precision (AP), Brier score, and expected calibration error over ten equal-width risk bins (ECE)~\\cite{sklearnmetrics,guocalibration}. AP is not trapezoidal precision--recall area. Test AP is interpreted relative to the test prevalence of 0.3342, not the prevalence of the full dataset. For $N$ responses with risks $p_i$ and binary labels $h_i$, the probability-quality summaries are"
         }
       ]
@@ -313,7 +314,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 91,
+          "line": 92,
           "text": "We report precision, recall, F1, confusion counts, AUROC, scikit-learn average precision (AP), Brier score, and expected calibration error over ten equal-width risk bins (ECE)~\\cite{sklearnmetrics,guocalibration}. AP is not trapezoidal precision--recall area. Test AP is interpreted relative to the test prevalence of 0.3342, not the prevalence of the full dataset. For $N$ responses with risks $p_i$ and binary labels $h_i$, the probability-quality summaries are"
         }
       ]
@@ -326,7 +327,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 121,
+          "line": 122,
           "text": "A logistic regression with random seed 42 maps $\\mathbf{x}(y)$ to a response score using the standard logistic link~\\cite{sklearnlr}:"
         }
       ]
@@ -339,7 +340,7 @@
       "source_verified": "Primary publisher/author/official documentation record inspected; selected claim checked against available abstract or method description",
       "supporting_source_lines": [
         {
-          "line": 199,
+          "line": 200,
           "text": "The project repository is \\href{https://github.com/algorithmist-yash/EviConsist}{github.com/algorithmist-yash/EviConsist}~\\cite{repository}. It provides the implementation, manuscript source, original figure-generation code, configuration records, and aggregate result tables. Response-level prediction archives and raw corpus text remain local. The accompanying analysis script recomputes the reported point estimates and plots from those saved predictions without retraining or threshold tuning; regenerating prediction-level curves requires those local artifacts. Upstream article, passage, and review rights are not inferred from repository licensing, and raw source text is not redistributed. Provider/release provenance remains an acknowledged limitation."
         }
       ]

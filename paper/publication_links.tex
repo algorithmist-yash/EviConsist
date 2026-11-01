@@ -1,0 +1,67 @@
+% Generated direct-publication numeric links; bibliography stays in first-citation order.
+\makeatletter
+\expandafter\def\csname puburl@lewisrag\endcsname{https://arxiv.org/abs/2005.11401}
+\expandafter\def\csname pubnum@lewisrag\endcsname{1}
+\expandafter\def\csname puburl@ragtruth\endcsname{https://aclanthology.org/2024.acl-long.585/}
+\expandafter\def\csname pubnum@ragtruth\endcsname{2}
+\expandafter\def\csname puburl@maynez\endcsname{https://aclanthology.org/2020.acl-main.173/}
+\expandafter\def\csname pubnum@maynez\endcsname{3}
+\expandafter\def\csname puburl@halueval\endcsname{https://aclanthology.org/2023.emnlp-main.397/}
+\expandafter\def\csname pubnum@halueval\endcsname{4}
+\expandafter\def\csname puburl@fever\endcsname{https://aclanthology.org/N18-1074/}
+\expandafter\def\csname pubnum@fever\endcsname{5}
+\expandafter\def\csname puburl@scifact\endcsname{https://aclanthology.org/2020.emnlp-main.609/}
+\expandafter\def\csname pubnum@scifact\endcsname{6}
+\expandafter\def\csname puburl@frank\endcsname{https://aclanthology.org/2021.naacl-main.383/}
+\expandafter\def\csname pubnum@frank\endcsname{7}
+\expandafter\def\csname puburl@truebenchmark\endcsname{https://aclanthology.org/2022.dialdoc-1.19/}
+\expandafter\def\csname pubnum@truebenchmark\endcsname{8}
+\expandafter\def\csname puburl@factscore\endcsname{https://arxiv.org/abs/2305.14251}
+\expandafter\def\csname pubnum@factscore\endcsname{9}
+\expandafter\def\csname puburl@alignscore\endcsname{https://aclanthology.org/2023.acl-long.634/}
+\expandafter\def\csname pubnum@alignscore\endcsname{10}
+\expandafter\def\csname puburl@smallcard\endcsname{https://huggingface.co/cross-encoder/nli-deberta-v3-small}
+\expandafter\def\csname pubnum@smallcard\endcsname{11}
+\expandafter\def\csname puburl@basecard\endcsname{https://huggingface.co/cross-encoder/nli-deberta-v3-base}
+\expandafter\def\csname pubnum@basecard\endcsname{12}
+\expandafter\def\csname puburl@factcc\endcsname{https://aclanthology.org/2020.emnlp-main.750/}
+\expandafter\def\csname pubnum@factcc\endcsname{13}
+\expandafter\def\csname puburl@summac\endcsname{https://aclanthology.org/2022.tacl-1.10/}
+\expandafter\def\csname pubnum@summac\endcsname{14}
+\expandafter\def\csname puburl@qags\endcsname{https://aclanthology.org/2020.acl-main.450/}
+\expandafter\def\csname pubnum@qags\endcsname{15}
+\expandafter\def\csname puburl@qafacteval\endcsname{https://aclanthology.org/2022.naacl-main.187/}
+\expandafter\def\csname pubnum@qafacteval\endcsname{16}
+\expandafter\def\csname puburl@snli\endcsname{https://aclanthology.org/D15-1075/}
+\expandafter\def\csname pubnum@snli\endcsname{17}
+\expandafter\def\csname puburl@multinli\endcsname{https://aclanthology.org/N18-1101/}
+\expandafter\def\csname pubnum@multinli\endcsname{18}
+\expandafter\def\csname puburl@debertav3\endcsname{https://arxiv.org/abs/2111.09543}
+\expandafter\def\csname pubnum@debertav3\endcsname{19}
+\expandafter\def\csname puburl@selfcheck\endcsname{https://aclanthology.org/2023.emnlp-main.557/}
+\expandafter\def\csname pubnum@selfcheck\endcsname{20}
+\expandafter\def\csname puburl@semanticentropy\endcsname{https://www.nature.com/articles/s41586-024-07421-0}
+\expandafter\def\csname pubnum@semanticentropy\endcsname{21}
+\expandafter\def\csname puburl@sklearnmetrics\endcsname{https://scikit-learn.org/stable/modules/model_evaluation.html}
+\expandafter\def\csname pubnum@sklearnmetrics\endcsname{22}
+\expandafter\def\csname puburl@guocalibration\endcsname{https://proceedings.mlr.press/v70/guo17a.html}
+\expandafter\def\csname pubnum@guocalibration\endcsname{23}
+\expandafter\def\csname puburl@sklearnlr\endcsname{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html}
+\expandafter\def\csname pubnum@sklearnlr\endcsname{24}
+\expandafter\def\csname puburl@repository\endcsname{https://github.com/algorithmist-yash/EviConsist}
+\expandafter\def\csname pubnum@repository\endcsname{25}
+% Current manuscript uses plain comma-separated \cite{key1,key2} calls.
+% Each displayed number gets its own external link; no nested PDF links.
+\renewcommand{\cite}[1]{%
+  \begingroup
+  \nocite{#1}% Record normal citation keys in the auxiliary file.
+  \def\pubseparator{}%
+  \@for\pubkey:=#1\do{%
+    \pubseparator
+    \edef\pubtarget{\csname puburl@\pubkey\endcsname}%
+    \href{\pubtarget}{[\csname pubnum@\pubkey\endcsname]}%
+    \def\pubseparator{,\,}%
+  }%
+  \endgroup
+}
+\makeatother
