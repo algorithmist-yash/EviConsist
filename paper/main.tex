@@ -23,7 +23,10 @@ hallucination detection, natural language inference, evidence verification, RAGT
 \end{IEEEkeywords}
 
 \section{Introduction}
-Retrieval-augmented language generation can produce responses that disagree with, or exceed, the supplied evidence. Detecting these failures requires distinguishing fluent text from supported text. A practical detector must also control false alarms: a system that identifies most hallucinations but flags many supported answers can impose substantial review effort.
+Retrieval-augmented generation combines a language model with a retrieved non-parametric information source~\cite{lewisrag}.
+Retrieval-augmented responses can nevertheless contain unsupported or contradictory content~\cite{ragtruth}.
+Human evaluation of abstractive summarization also distinguishes fluent output from content that remains faithful to its input~\cite{maynez}.
+A practical detector must control false alarms: a system that identifies most hallucinations but flags many supported answers can impose substantial review effort.
 
 Evidence-based detection commonly couples passage retrieval with a verifier. This creates a diagnostic ambiguity. A high unsupported score may arise because the claim is unsupported, because retrieval missed relevant material, or because the verifier misread the retrieved passage. Improving the verifier alone may help, but its effect should be measured with retrieval and downstream training held fixed. Otherwise, changes in evidence or decision thresholds can be mistaken for verification improvements.
 
@@ -32,11 +35,38 @@ This paper reports a completed, controlled comparison between two NLI verifiers 
 The contributions are an audited implementation of a sentence-window evidence detector, a frozen small-versus-base verifier comparison, and a saved-prediction analysis of task variation and source-overlap sensitivity. These are engineering and empirical contributions, not a new NLI architecture, state-of-the-art benchmark claim, or proof of self-consistency/evidence complementarity. The latter remains future work.
 
 \section{Related Work}
+\subsection{Factuality Benchmarks and Error Analysis}
 RAGTruth provides a corpus for studying unsupported and contradictory content in retrieval-augmented responses, including span-level annotations \cite{ragtruth}. Our study uses its supplied responses and evidence, with an explicit response-label mapping and quality filter. It does not directly compare its operational results with published RAGTruth detector scores because evaluation settings and label mappings may differ.
 
+HaluEval evaluates hallucination recognition using generated and human-annotated examples~\cite{halueval}.
+FEVER frames verification as evidence-based classification of claims derived from Wikipedia~\cite{fever}.
+SciFact extends evidence-based verification to scientific claims and supporting or refuting research abstracts~\cite{scifact}.
+These resources motivate distinguishing dataset-specific label definitions; they are contextual references, not additional evaluation datasets in this study.
+
+FRANK introduces a factual-error typology and annotated summaries for analyzing the strengths and weaknesses of factuality metrics~\cite{frank}.
+TRUE emphasizes standardized example-level evaluation across tasks rather than relying only on system-level correlations~\cite{truebenchmark}.
+These studies motivate our task-stratified reporting and explicit distinction between benchmark labels and provisional error diagnoses; they do not validate our assistant-assigned categories.
+
+\subsection{Entailment and Question-Answering Verifiers}
 Fine-grained factuality assessment motivates separating supported units from unsupported ones. FActScore decomposes generations into atomic facts and estimates their support \cite{factscore}; AlignScore learns an alignment function for factual-consistency assessment \cite{alignscore}. Our simpler sentence proxies are not atomic facts, and our logistic risk score is not an estimate of the proportion of true facts. The NLI checkpoints used here are existing cross-encoders trained for contradiction, entailment, and neutral prediction \cite{smallcard,basecard}. Their outputs require evaluation in the downstream detection task.
 
+FactCC learns factual-consistency judgments using synthetic sentence transformations and auxiliary evidence/error-span extraction~\cite{factcc}.
+SummaC addresses the granularity mismatch between sentence-level NLI and document-level inconsistency detection through segmentation and score aggregation~\cite{summac}.
+QAGS compares answers to questions about a generated summary and its source as a consistency signal~\cite{qags}.
+QAFactEval studies QA-metric components, including question generation and answerability, and reports complementary QA and entailment signals~\cite{qafacteval}.
+Together, these approaches motivate controlling the retrieval, segmentation, verifier, and aggregation components separately. We compare two verifier checkpoints, not these published systems head-to-head.
+
+SNLI supplies annotated sentence pairs for learning natural language inference~\cite{snli}.
+MultiNLI broadens sentence-inference coverage across genres~\cite{multinli}.
+DeBERTaV3 studies replaced-token pretraining and gradient-disentangled embedding sharing for language understanding~\cite{debertav3}.
+These are foundations of the verifier family, not evidence that NLI benchmark performance directly transfers to hallucination detection.
+
+\subsection{Sampling-Based Uncertainty}
 SelfCheckGPT uses comparisons among sampled responses as a factuality signal \cite{selfcheck}. This is distinct from verification against supplied source text. RAGTruth's existing outputs come from different generators and are not automatically controlled same-model samples. We therefore do not treat them as a consistency baseline or claim that a fused detector has been evaluated.
+
+Semantic entropy groups sampled answers by meaning before estimating uncertainty about their semantic content~\cite{semanticentropy}.
+Its treatment of confabulations motivates semantic rather than purely lexical sample comparisons, but it does not make repeated agreement proof of correctness~\cite{semanticentropy}.
+We cite this direction as motivation for future controlled consistency experiments, not as a component evaluated in the present verifier comparison.
 
 \section{Data and Evaluation Protocol}
 \subsection{Audited Dataset and Operational Labels}
@@ -172,12 +202,27 @@ The project repository is \href{https://github.com/algorithmist-yash/EviConsist}
 OpenAI ChatGPT/Codex was used for implementation assistance, annotation-policy exploration, provisional error categorization, analysis and plotting code, and drafting and revising text throughout this manuscript. Provisional assistant reviews are identified as such and are not presented as independent human annotations. The reported detector labels come from the benchmark's existing annotations under the stated mapping. AI assistance is not authorship or independent validation.
 
 \begin{thebibliography}{00}
+\bibitem{lewisrag} P.~Lewis \emph{et al.}, ``\href{https://arxiv.org/abs/2005.11401}{Retrieval-augmented generation for knowledge-intensive NLP tasks},'' in \emph{Proc. NeurIPS}, 2020. [Online]. Available: \url{https://arxiv.org/abs/2005.11401}
 \bibitem{ragtruth} C.~Niu \emph{et al.}, ``\href{https://aclanthology.org/2024.acl-long.585/}{RAGTruth: A hallucination corpus for developing trustworthy retrieval-augmented language models},'' in \emph{Proc. ACL}, 2024, pp.~10862--10878, doi: \href{https://doi.org/10.18653/v1/2024.acl-long.585}{10.18653/v1/2024.acl-long.585}.
+\bibitem{maynez} J.~Maynez, S.~Narayan, B.~Bohnet, and R.~McDonald, ``\href{https://aclanthology.org/2020.acl-main.173/}{On faithfulness and factuality in abstractive summarization},'' in \emph{Proc. ACL}, 2020, pp.~1906--1919, doi: \href{https://doi.org/10.18653/v1/2020.acl-main.173}{10.18653/v1/2020.acl-main.173}.
+\bibitem{halueval} J.~Li, X.~Cheng, W.~X.~Zhao, J.-Y.~Nie, and J.-R.~Wen, ``\href{https://aclanthology.org/2023.emnlp-main.397/}{HaluEval: A large-scale hallucination evaluation benchmark for large language models},'' in \emph{Proc. EMNLP}, 2023, pp.~6449--6464, doi: \href{https://doi.org/10.18653/v1/2023.emnlp-main.397}{10.18653/v1/2023.emnlp-main.397}.
+\bibitem{fever} J.~Thorne, A.~Vlachos, C.~Christodoulopoulos, and A.~Mittal, ``\href{https://aclanthology.org/N18-1074/}{FEVER: A large-scale dataset for fact extraction and verification},'' in \emph{Proc. NAACL-HLT}, 2018, pp.~809--819, doi: \href{https://doi.org/10.18653/v1/N18-1074}{10.18653/v1/N18-1074}.
+\bibitem{scifact} D.~Wadden \emph{et al.}, ``\href{https://aclanthology.org/2020.emnlp-main.609/}{Fact or fiction: Verifying scientific claims},'' in \emph{Proc. EMNLP}, 2020, pp.~7534--7550, doi: \href{https://doi.org/10.18653/v1/2020.emnlp-main.609}{10.18653/v1/2020.emnlp-main.609}.
+\bibitem{frank} A.~Pagnoni, V.~Balachandran, and Y.~Tsvetkov, ``\href{https://aclanthology.org/2021.naacl-main.383/}{Understanding factuality in abstractive summarization with FRANK: A benchmark for factuality metrics},'' in \emph{Proc. NAACL-HLT}, 2021, pp.~4812--4829, doi: \href{https://doi.org/10.18653/v1/2021.naacl-main.383}{10.18653/v1/2021.naacl-main.383}.
+\bibitem{truebenchmark} O.~Honovich \emph{et al.}, ``\href{https://aclanthology.org/2022.dialdoc-1.19/}{TRUE: Re-evaluating factual consistency evaluation},'' in \emph{Proc. Second DialDoc Workshop}, 2022, pp.~161--175, doi: \href{https://doi.org/10.18653/v1/2022.dialdoc-1.19}{10.18653/v1/2022.dialdoc-1.19}.
 \bibitem{factscore} S.~Min \emph{et al.}, ``\href{https://arxiv.org/abs/2305.14251}{FActScore: Fine-grained atomic evaluation of factual precision in long form text generation},'' arXiv:2305.14251, 2023, doi: \href{https://doi.org/10.48550/arXiv.2305.14251}{10.48550/arXiv.2305.14251}.
 \bibitem{alignscore} Y.~Zha, Y.~Yang, R.~Li, and Z.~Hu, ``\href{https://aclanthology.org/2023.acl-long.634/}{AlignScore: Evaluating factual consistency with a unified alignment function},'' in \emph{Proc. ACL}, 2023, pp.~11328--11348, doi: \href{https://doi.org/10.18653/v1/2023.acl-long.634}{10.18653/v1/2023.acl-long.634}.
 \bibitem{smallcard} Sentence Transformers, ``cross-encoder/nli-deberta-v3-small,'' model card, accessed Nov.~1, 2026. [Online]. Available: \url{https://huggingface.co/cross-encoder/nli-deberta-v3-small}
 \bibitem{basecard} Sentence Transformers, ``cross-encoder/nli-deberta-v3-base,'' model card, accessed Nov.~1, 2026. [Online]. Available: \url{https://huggingface.co/cross-encoder/nli-deberta-v3-base}
+\bibitem{factcc} W.~Kryscinski, B.~McCann, C.~Xiong, and R.~Socher, ``\href{https://aclanthology.org/2020.emnlp-main.750/}{Evaluating the factual consistency of abstractive text summarization},'' in \emph{Proc. EMNLP}, 2020, pp.~9332--9346, doi: \href{https://doi.org/10.18653/v1/2020.emnlp-main.750}{10.18653/v1/2020.emnlp-main.750}.
+\bibitem{summac} P.~Laban, T.~Schnabel, P.~N.~Bennett, and M.~A.~Hearst, ``\href{https://aclanthology.org/2022.tacl-1.10/}{SummaC: Re-visiting NLI-based models for inconsistency detection in summarization},'' \emph{Trans. Assoc. Comput. Linguistics}, vol.~10, pp.~163--177, 2022, doi: \href{https://doi.org/10.1162/tacl_a_00453}{10.1162/tacl\_a\_00453}.
+\bibitem{qags} A.~Wang, K.~Cho, and M.~Lewis, ``\href{https://aclanthology.org/2020.acl-main.450/}{Asking and answering questions to evaluate the factual consistency of summaries},'' in \emph{Proc. ACL}, 2020, pp.~5008--5020, doi: \href{https://doi.org/10.18653/v1/2020.acl-main.450}{10.18653/v1/2020.acl-main.450}.
+\bibitem{qafacteval} A.~Fabbri, C.-S.~Wu, W.~Liu, and C.~Xiong, ``\href{https://aclanthology.org/2022.naacl-main.187/}{QAFactEval: Improved QA-based factual consistency evaluation for summarization},'' in \emph{Proc. NAACL-HLT}, 2022, pp.~2587--2601, doi: \href{https://doi.org/10.18653/v1/2022.naacl-main.187}{10.18653/v1/2022.naacl-main.187}.
+\bibitem{snli} S.~R.~Bowman, G.~Angeli, C.~Potts, and C.~D.~Manning, ``\href{https://aclanthology.org/D15-1075/}{A large annotated corpus for learning natural language inference},'' in \emph{Proc. EMNLP}, 2015, pp.~632--642, doi: \href{https://doi.org/10.18653/v1/D15-1075}{10.18653/v1/D15-1075}.
+\bibitem{multinli} A.~Williams, N.~Nangia, and S.~R.~Bowman, ``\href{https://aclanthology.org/N18-1101/}{A broad-coverage challenge corpus for sentence understanding through inference},'' in \emph{Proc. NAACL-HLT}, 2018, pp.~1112--1122, doi: \href{https://doi.org/10.18653/v1/N18-1101}{10.18653/v1/N18-1101}.
+\bibitem{debertav3} P.~He, J.~Gao, and W.~Chen, ``\href{https://arxiv.org/abs/2111.09543}{DeBERTaV3: Improving DeBERTa using ELECTRA-style pre-training with gradient-disentangled embedding sharing},'' in \emph{Proc. ICLR}, 2023. [Online]. Available: \url{https://arxiv.org/abs/2111.09543}
 \bibitem{selfcheck} P.~Manakul, A.~Liusie, and M.~J.~F.~Gales, ``\href{https://aclanthology.org/2023.emnlp-main.557/}{SelfCheckGPT: Zero-resource black-box hallucination detection for generative large language models},'' in \emph{Proc. EMNLP}, 2023, pp.~9004--9017, doi: \href{https://doi.org/10.18653/v1/2023.emnlp-main.557}{10.18653/v1/2023.emnlp-main.557}.
+\bibitem{semanticentropy} S.~Farquhar, J.~Kossen, L.~Kuhn, and Y.~Gal, ``\href{https://www.nature.com/articles/s41586-024-07421-0}{Detecting hallucinations in large language models using semantic entropy},'' \emph{Nature}, vol.~630, pp.~625--630, 2024, doi: \href{https://doi.org/10.1038/s41586-024-07421-0}{10.1038/s41586-024-07421-0}.
 \bibitem{sklearnmetrics} scikit-learn developers, ``\href{https://scikit-learn.org/stable/modules/model_evaluation.html}{Metrics and scoring: Quantifying the quality of predictions},'' scikit-learn documentation, accessed Nov.~1, 2026. [Online]. Available: \url{https://scikit-learn.org/stable/modules/model_evaluation.html}
 \bibitem{guocalibration} C.~Guo, G.~Pleiss, Y.~Sun, and K.~Q.~Weinberger, ``\href{https://proceedings.mlr.press/v70/guo17a.html}{On calibration of modern neural networks},'' in \emph{Proc. ICML}, vol.~70, 2017, pp.~1321--1330.
 \bibitem{sklearnlr} scikit-learn developers, ``\href{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html}{LogisticRegression},'' scikit-learn documentation, accessed Nov.~1, 2026. [Online]. Available: \url{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html}

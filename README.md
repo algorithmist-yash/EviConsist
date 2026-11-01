@@ -22,6 +22,7 @@ Task-specific trade-offs and source-overlap limitations matter. These are benchm
 ## Manuscript and original assets
 
 - [Main IEEE-style LaTeX source](paper/main.tex)
+- [Citation-to-sentence map: 20 research papers](paper/CITATION_MAP.md)
 - [Original figures and provenance](paper/figures/README.md)
 - [Original measured tables](paper/tables/README.md)
 - [Verified aggregate results](paper/reproducibility/VERIFIED_PAPER_RESULTS.json)
